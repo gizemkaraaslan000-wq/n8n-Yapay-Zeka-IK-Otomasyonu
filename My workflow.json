@@ -1,0 +1,199 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "12lWhcGjy5UB6vgqCbHWKluTmkdPpOWgvvl-JQiWcd-4",
+          "mode": "list",
+          "cachedResultName": "IK_Analiz_Sistemi",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12lWhcGjy5UB6vgqCbHWKluTmkdPpOWgvvl-JQiWcd-4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sayfa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12lWhcGjy5UB6vgqCbHWKluTmkdPpOWgvvl-JQiWcd-4/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -352
+      ],
+      "id": "fdc78df7-6ad3-41c0-958b-e23fe81294bb",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "cWAtnCERybjhD5CR",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Aşağıdaki çalışanın geri bildirimini oku ve bir İK uzmanı gibi duygu analizi yap. Motivasyon durumunu ve yapılması gerekeni maksimum 1 cümleyle özetle: {{ $json['GERİ_BİLDİRİM'] }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        -352
+      ],
+      "id": "c3304e1a-27f9-4a06-8fef-dac48793c1d5",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "L3apl0YjZD28gY8U",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "12lWhcGjy5UB6vgqCbHWKluTmkdPpOWgvvl-JQiWcd-4",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sayfa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12lWhcGjy5UB6vgqCbHWKluTmkdPpOWgvvl-JQiWcd-4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "İSİM": "={{ $('Google Sheets Trigger').item.json['İSİM'] }}",
+            "AI_DUYGU_ANALİZİ": "={{ $json.content.parts[0].text }}"
+          },
+          "matchingColumns": [
+            "İSİM"
+          ],
+          "schema": [
+            {
+              "id": "İSİM",
+              "displayName": "İSİM",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DEPARTMAN",
+              "displayName": "DEPARTMAN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GERİ_BİLDİRİM",
+              "displayName": "GERİ_BİLDİRİM",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_DUYGU_ANALİZİ",
+              "displayName": "AI_DUYGU_ANALİZİ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        -352
+      ],
+      "id": "e89dd188-cefa-4ad5-8ed5-abd086f5c5a8",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "ffXRPw7TVDlTI20E",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b4c57fe1-c493-45a2-8a79-69ea71ccd2c9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93306186f92ffafe2c4a9fff0f805162b69999106d4403666aa4cf9067f7d205"
+  },
+  "id": "WraQ9zYc319PHh4F",
+  "tags": []
+}
